@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using SteamShelf;
 using Steamworks;
 
-[assembly: MelonInfo(typeof(FamilyOwned.Core), "FamilyOwned", "1.0.0", "Rusty", null)]
+[assembly: MelonInfo(typeof(FamilyOwned.Core), "FamilyOwned", "1.0.0", "MidgetBrony", null)]
 [assembly: MelonGame("NestedLoop", "BOXROOM")]
 
 namespace FamilyOwned

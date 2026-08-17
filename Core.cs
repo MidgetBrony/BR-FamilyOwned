@@ -3,7 +3,7 @@ using MelonLoader;
 using SteamShelf;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(FamilyOwned.Core), "FamilyOwned", "2.0.0", "MidgetBrony", null)]
+[assembly: MelonInfo(typeof(FamilyOwned.Core), "FamilyOwned", "2.0.3", "MidgetBrony", null)]
 [assembly: MelonGame("NestedLoop", "BOXROOM")]
 
 namespace FamilyOwned
@@ -19,7 +19,7 @@ namespace FamilyOwned
     [HarmonyPatch(typeof(SteamLibrarySystem), nameof(SteamLibrarySystem.LaunchGame))]
     internal static class SteamCustomUriLaunchPatch
     {
-        private const string SteamRunPrefix = "steam://run//";
+        private const string SteamUriPrefix = "steam://";
 
         private static bool Prefix(SteamGameData data)
         {
@@ -27,7 +27,7 @@ namespace FamilyOwned
                 !SteamLibrarySystem.IsCustomAppId(data.AppId) ||
                 string.IsNullOrWhiteSpace(data.LaunchExePath) ||
                 !data.LaunchExePath.StartsWith(
-                    SteamRunPrefix,
+                    SteamUriPrefix,
                     System.StringComparison.OrdinalIgnoreCase))
             {
                 return true;

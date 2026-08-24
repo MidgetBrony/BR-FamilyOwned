@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "br-familyowned",
+  "name": "FamilyOwned",
+  "author": "MidgetBrony",
+  "description": "Launch Steam Family titles imported into BOXROOM as custom games through their Steam URLs.",
+  "repository": "https://github.com/MidgetBrony/BR-FamilyOwned",
+  "requirements": { "melonLoader": "0.7.0" },
+  "dependencies": [],
+  "release": {
+    "provider": "github",
+    "asset": "FamilyOwned*.zip",
+    "destination": "Mods"
+  }
+}

@@ -9,7 +9,8 @@
   "dependencies": [],
   "release": {
     "provider": "github",
-    "asset": "FamilyOwned*.zip",
+    "asset": "FamilyOwned-*.zip",
+    "checksumAsset": "SHA256SUMS.txt",
     "destination": "Mods"
   }
 }

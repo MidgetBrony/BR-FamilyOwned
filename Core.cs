@@ -3,7 +3,7 @@ using MelonLoader;
 using SteamShelf;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(FamilyOwned.Core), "FamilyOwned", "2.0.3", "MidgetBrony", null)]
+[assembly: MelonInfo(typeof(FamilyOwned.Core), "FamilyOwned", "2.0.5", "MidgetBrony", null)]
 [assembly: MelonGame("NestedLoop", "BOXROOM")]
 
 namespace FamilyOwned

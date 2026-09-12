@@ -1,9 +1,10 @@
 using HarmonyLib;
 using MelonLoader;
 using SteamShelf;
-using UnityEngine;
+using System;
+using System.Diagnostics;
 
-[assembly: MelonInfo(typeof(FamilyOwned.Core), "FamilyOwned", "2.0.5", "MidgetBrony", null)]
+[assembly: MelonInfo(typeof(FamilyOwned.Core), "FamilyOwned", "2.1.0", "MidgetBrony", null)]
 [assembly: MelonGame("NestedLoop", "BOXROOM")]
 
 namespace FamilyOwned
@@ -12,28 +13,38 @@ namespace FamilyOwned
     {
         public override void OnInitializeMelon()
         {
-            LoggerInstance.Msg("Initialized custom Steam URI launcher.");
+            LoggerInstance.Msg("Initialized custom URI launcher.");
         }
     }
 
     [HarmonyPatch(typeof(SteamLibrarySystem), nameof(SteamLibrarySystem.LaunchGame))]
-    internal static class SteamCustomUriLaunchPatch
+    internal static class CustomUriLaunchPatch
     {
-        private const string SteamUriPrefix = "steam://";
-
         private static bool Prefix(SteamGameData data)
         {
             if (data == null ||
                 !SteamLibrarySystem.IsCustomAppId(data.AppId) ||
                 string.IsNullOrWhiteSpace(data.LaunchExePath) ||
-                !data.LaunchExePath.StartsWith(
-                    SteamUriPrefix,
-                    System.StringComparison.OrdinalIgnoreCase))
+                !Uri.TryCreate(data.LaunchExePath, UriKind.Absolute, out Uri launchUri) ||
+                launchUri.IsFile)
             {
                 return true;
             }
 
-            Application.OpenURL(data.LaunchExePath);
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = data.LaunchExePath,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception exception)
+            {
+                MelonLogger.Error(
+                    $"Could not launch URI '{data.LaunchExePath}': {exception.Message}");
+            }
+
             return false;
         }
     }

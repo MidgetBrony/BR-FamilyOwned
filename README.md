@@ -1,8 +1,8 @@
 # FamilyOwned
 
-FamilyOwned is a small MelonLoader compatibility mod for **BOXROOM** that allows Steam-backed custom games to launch through `steam://` URIs.
+FamilyOwned is a small MelonLoader compatibility mod for **BOXROOM** that allows custom games to launch registered URI schemes such as `steam://` and `curseforge://`.
 
-It was originally designed for family-shared games imported by **BR-QImport**, but also supports Steam URI launching for custom games running through BOXROOM on Linux/Proton.
+It was originally designed for family-shared games imported by **BR-QImport**. Version 2.1 makes the shim generic, so any absolute non-file URI can be handed to the operating system's registered protocol handler.
 
 ## Why It Is Needed
 
@@ -14,9 +14,9 @@ steam://run/<STEAM-APP-ID>
 
 BOXROOM normally treats a custom game's `LaunchExePath` as a local executable and may validate or launch it as a filesystem path.
 
-A Steam URI is not a local executable, so BOXROOM's normal custom-game launch path cannot handle it correctly.
+A URI is not a local executable, so BOXROOM's normal custom-game launch path cannot handle it correctly.
 
-FamilyOwned intercepts Steam URI launch requests for custom games, passes the URI to Unity's URL launcher, and skips BOXROOM's normal executable-launch logic.
+FamilyOwned intercepts URI launch requests for custom games, passes the complete URI to the operating system with `Process.Start`, and skips BOXROOM's normal executable-launch logic.
 
 This also provides a useful compatibility layer when BOXROOM is running through Proton: rather than attempting to launch a native Linux executable from inside BOXROOM's Wine/Proton environment, BOXROOM can hand the launch request back to the host Steam client.
 
@@ -25,9 +25,10 @@ This also provides a useful compatibility layer when BOXROOM is running through 
 * Launches BR-QImport family games through Steam
 * Supports `steam://run/<APP-ID>` for normal Steam App IDs
 * Supports `steam://rungameid/<SHORTCUT-ID>` for Steam non-Steam shortcuts
-* Supports Steam URI launch paths without requiring BOXROOM to understand the underlying executable
+* Supports `curseforge://` and other registered URI schemes
+* Passes the complete launch URI through unchanged
 * Useful for BOXROOM running through Proton on Steam Deck/Linux
-* Only intercepts Steam URIs assigned to BOXROOM custom games
+* Only intercepts absolute non-file URIs assigned to BOXROOM custom games
 * Leaves ordinary Steam games and local executable-based custom games unchanged
 * Requires no JSON configuration
 * Does not override Steam ownership or subscription checks
@@ -36,7 +37,7 @@ This also provides a useful compatibility layer when BOXROOM is running through 
 
 * BOXROOM
 * MelonLoader
-* Steam client capable of handling `steam://` URIs
+* An application registered to handle the URI scheme being launched
 * BR-QImport when importing Steam Family games
 * Access to any Steam Family game being launched
 
@@ -68,10 +69,10 @@ WINEDLLOVERRIDES="version=n,b" %command%
 A quick way to verify that MelonLoader is working is to launch BOXROOM and confirm that the MelonLoader console/log appears and that the following FamilyOwned startup message is present:
 
 ```text
-[FamilyOwned] Initialized custom Steam URI launcher.
+[FamilyOwned] Initialized custom URI launcher.
 ```
 
-If FamilyOwned does not appear in the MelonLoader log, Steam URI handling provided by this mod will not be active.
+If FamilyOwned does not appear in the MelonLoader log, custom URI handling provided by this mod will not be active.
 
 ## BR-QImport Metadata
 
@@ -102,21 +103,22 @@ FamilyOwned patches:
 SteamLibrarySystem.LaunchGame(SteamGameData data)
 ```
 
-For BOXROOM custom games, FamilyOwned checks whether `LaunchExePath` contains a Steam URI:
+For BOXROOM custom games, FamilyOwned checks whether `LaunchExePath` is an absolute, non-file URI. Examples include:
 
 ```text
 steam://
+curseforge://
 ```
 
-When it does, FamilyOwned passes the URI to:
+When it does, FamilyOwned passes the complete URI to:
 
 ```csharp
-Application.OpenURL(...)
+Process.Start(new ProcessStartInfo { FileName = uri, UseShellExecute = true })
 ```
 
 and skips BOXROOM's original `LaunchGame` implementation.
 
-This prevents BOXROOM from treating the Steam URI as a local executable path.
+This asks the operating system to invoke the application registered for that scheme and prevents BOXROOM from treating the URI as a local executable path.
 
 Conceptually:
 
@@ -127,13 +129,13 @@ BOXROOM custom game
 FamilyOwned
         |
         v
-steam:// URI
+registered URI
         |
         v
-Steam
+protocol handler
         |
         v
-Game
+application
 ```
 
 Every launch that does not match these conditions continues through BOXROOM's original method unchanged.
@@ -298,10 +300,10 @@ Family titles are represented as ordinary BOXROOM custom games instead.
 Successful startup:
 
 ```text
-[FamilyOwned] Initialized custom Steam URI launcher.
+[FamilyOwned] Initialized custom URI launcher.
 ```
 
-If this line is missing, verify that MelonLoader itself is loading correctly before troubleshooting Steam URI handling.
+If this line is missing, verify that MelonLoader itself is loading correctly before troubleshooting URI handling.
 
 ## Limitations
 
@@ -315,6 +317,7 @@ FamilyOwned does not:
 * Make unavailable family games playable
 * Configure Steam non-Steam shortcuts
 * Make Proton directly execute arbitrary native Linux paths
+* Install or register protocol handlers such as CurseForge
 
 Steam must already be capable of launching the selected game or shortcut.
 
@@ -351,7 +354,7 @@ Delete:
 BOXROOM/Mods/FamilyOwned.dll
 ```
 
-Imported family entries will remain visible as custom games, but Steam URI launch paths will no longer be intercepted by FamilyOwned.
+Imported family entries will remain visible as custom games, but URI launch paths will no longer be intercepted by FamilyOwned.
 
 ## License
 

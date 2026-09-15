@@ -18,6 +18,10 @@ A URI is not a local executable, so BOXROOM's normal custom-game launch path can
 
 FamilyOwned intercepts URI launch requests for custom games, passes the complete URI to the operating system with `Process.Start`, and skips BOXROOM's normal executable-launch logic.
 
+## GOG Galaxy
+
+FamilyOwned 2.2.0 recognizes imported `goggalaxy://openGameView/<product-id>` paths and launches installed games through `GalaxyClient.exe /command=runGame /gameId=<product-id>`. If Galaxy cannot be located, it opens the normal Galaxy game page instead.
+
 This also provides a useful compatibility layer when BOXROOM is running through Proton: rather than attempting to launch a native Linux executable from inside BOXROOM's Wine/Proton environment, BOXROOM can hand the launch request back to the host Steam client.
 
 ## Features

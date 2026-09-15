@@ -3,7 +3,7 @@
   "id": "br-familyowned",
   "name": "FamilyOwned",
   "author": "MidgetBrony",
-  "description": "Launch registered URI schemes such as steam:// and curseforge:// from BOXROOM custom games.",
+  "description": "Launch registered URI schemes such as steam:// and curseforge:// from BOXROOM custom games, including direct GOG Galaxy game launching.",
   "repository": "https://github.com/MidgetBrony/BR-FamilyOwned",
   "requirements": { "melonLoader": "0.7.0" },
   "dependencies": [],
